@@ -6,6 +6,9 @@ import { getBusinessSnapshot } from "@/lib/businessSnapshot";
 import { metricsToPromptSummary } from "@/lib/businessMetrics";
 import { getServerEnv } from "@/lib/env";
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 30;
+
 export async function POST(req: NextRequest) {
   try {
     // 1. Authenticate user session via Firebase ID Token
@@ -45,7 +48,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Extract and sanitize latest user message
+    // 4. Extract latest user message for security checks
     const lastUserMessage = [...parsed.data.history].reverse().find((m) => m.role === "user");
     if (!lastUserMessage) {
       return NextResponse.json({ error: "No user message found in history." }, { status: 400 });
@@ -73,7 +76,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 7. Dispatch call to Groq API
+    // 7. Dispatch call to Groq API with full conversation history context
     const systemPrompt = `You are PulseOps AI Copilot, an enterprise AI operational analyst.
 You assist business owners with data-grounded operations, analytics, and business health decisions.
 
@@ -85,6 +88,14 @@ CRITICAL INSTRUCTIONS:
 CURRENT BUSINESS METRICS SUMMARY:
 ${summary}`;
 
+    const formattedMessages = [
+      { role: "system", content: systemPrompt },
+      ...parsed.data.history.map((m) => ({
+        role: m.role,
+        content: m.role === "user" ? sanitizeUserContent(m.content) : m.content,
+      })),
+    ];
+
     const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -93,10 +104,7 @@ ${summary}`;
       },
       body: JSON.stringify({
         model, 
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: content },
-        ],
+        messages: formattedMessages,
         temperature: 0.5,
       }),
     });
