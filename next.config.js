@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ["firebase-admin", "jwks-rsa"],
+  serverExternalPackages: ["firebase-admin", "google-auth-library", "jose", "jwks-rsa"],
 };
 
 module.exports = nextConfig;
