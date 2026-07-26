@@ -1,0 +1,72 @@
+rules_version = '2';
+
+// ============================================================================
+// PulseOps AI — Firestore Security Rules
+// ============================================================================
+// WHY THIS FILE MATTERS:
+// This app's Products/Customers/Orders/Invoices pages talk to Firestore
+// directly from the browser using the Firebase *client* SDK (see
+// lib/firestoreCollection.ts — addDoc/updateDoc/deleteDoc/onSnapshot).
+// That means these rules are the *only* thing preventing any signed-in (or,
+// without rules, even anonymous) visitor from reading or overwriting your
+// entire business database. The Admin SDK routes (app/api/*) bypass these
+// rules entirely (by design — that's why they now require a verified
+// Firebase ID token in app code instead, see lib/auth-server.ts).
+//
+// MODEL: this is currently a *single-tenant* app — one Firebase project
+// serves one business, and any authenticated user is trusted staff. If you
+// later support multiple companies in one project, add a `companyId` field
+// to every document and change `isSignedIn()` checks below to also verify
+// `resource.data.companyId == request.auth.token.companyId` (or similar),
+// otherwise any customer of Company A could read Company B's data.
+//
+// Deploy with: firebase deploy --only firestore:rules
+// ============================================================================
+
+function isSignedIn() {
+  return request.auth != null;
+}
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /products/{productId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /customers/{customerId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /orders/{orderId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /invoices/{invoiceId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /reports/{reportId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /counters/{counterId} {
+      // Only used internally to generate ORD-/INV- sequence numbers inside
+      // a transaction (lib/counters.ts) — no reason for a client to read
+      // these directly, but writes must stay open for the transaction to work.
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // Per-user settings/profile documents (services/userSettingsService.ts
+    // writes to "users/{uid}") — users may only touch their own document.
+    match /users/{uid} {
+      allow read, write: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Default deny for anything not explicitly listed above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
