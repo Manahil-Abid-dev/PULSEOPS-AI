@@ -100,6 +100,7 @@ To eliminate background delays during live demos and user testing, **PulseOps AI
 3. **Run Automations On-Demand** — Use the **Automation Control Center** on the dashboard to immediately test daily briefings, inventory scans, and customer retention workflows with live visual status indicators.
 4. **AI Copilot** — Use the left sidebar to ask natural-language questions like *"How is revenue trending this month?"* or *"Which customers haven't ordered recently?"*.
 5. **Core Records** — Manage Products, Customers, Orders, and Invoices. Changes reflect immediately across the dashboard and AI responses.
+6. **Note**-Demo mode is available without logging in. To access **AI Copilot** and **Live Automations**,please **signup and login**.
 
 ---
 
