@@ -23,7 +23,7 @@
 
 ## 🌐 Live Links
 
-- **Production Deployment (Vercel):** [https://pulseops-4ydcvm2ww-manahil-abid1.vercel.app](https://pulseops-4ydcvm2ww-manahil-abid1.vercel.app)
+- **Production Deployment (Vercel):** https://pulseops-ai-sigma.vercel.app/
 - **GitHub Repository:** [https://github.com/Manahil-Abid-dev/PULSEOPS-AI](https://github.com/Manahil-Abid-dev/PULSEOPS-AI)
 
 ---
